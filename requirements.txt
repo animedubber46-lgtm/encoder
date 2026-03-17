@@ -1,0 +1,17 @@
+# Telegram Bot
+pyrogram>=2.0.0
+TgCrypto>=1.2.0
+
+# Database
+motor>=3.0.0
+pymongo>=4.0.0
+
+# System utilities
+psutil>=5.9.0
+python-dotenv>=1.0.0
+
+# Optional for speedtest
+speedtest-cli>=2.1.0
+
+# For async operations
+aiofiles>=23.0.0
