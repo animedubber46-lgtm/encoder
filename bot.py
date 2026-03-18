@@ -243,8 +243,9 @@ async def process_video_task(task_id: str, progress_msg: Message):
 async def start_command(client: Client, message: Message):
     try:
         user = message.from_user
-if not user:
-    return
+        if not user:
+            return
+
         print(f"/start from {user.id}")
 
         # SAFE DB CALL
