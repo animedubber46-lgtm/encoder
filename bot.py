@@ -241,37 +241,34 @@ async def process_video_task(task_id: str, progress_msg: Message):
 
 @app.on_message(filters.command("start") & filters.private)
 async def start_command(client: Client, message: Message):
-    """Handle /start command"""
-    user = message.from_user
-    await db.add_user(user.id, user.username or "", user.first_name)
-    
-    text = f"""
-👋 **Hello {user.first_name}!**
+    try:
+        user = message.from_user
+if not user:
+    return
+        print(f"/start from {user.id}")
 
-Welcome to **{BOT_NAME}**! 🎬
+        # SAFE DB CALL
+        try:
+            await db.add_user(user.id, user.username or "", user.first_name or "")
+        except Exception as db_error:
+            logger.error(f"DB ERROR: {db_error}")
 
-I can compress your videos in different qualities:
-• 480p - Smaller size, lower quality
-• 720p - Balanced size and quality
-• 1080p - Best quality, larger size
+        text = f"""
+👋 Hello {user.first_name or "User"}!
 
-**Features:**
-• Video compression (480p, 720p, 1080p)
-• Extract audio from videos
-• Add/remove audio
-• Add soft/hard subtitles
-• Trim videos
-• And more!
+Welcome to {BOT_NAME} 🎬
 
-Use /help to see all commands.
+Send me a video to compress it.
 
-🤖 **Version:** {BOT_VERSION}
-👨‍💻 **Developer:** {DEVELOPER}
+🤖 Version: {BOT_VERSION}
+👨‍💻 Developer: {DEVELOPER}
 """
-    await message.reply(text, reply_markup=get_main_keyboard())
 
+        await message.reply_text(text, reply_markup=get_main_keyboard())
 
-@app.on_message(filters.command("start") & filters.group)
+    except Exception as e:
+        logger.exception(f"START ERROR: {e}")
+        await message.reply_text("❌ Start error occurred")
 async def start_group_command(client: Client, message: Message):
     """Handle /start in groups"""
     if not await is_authorized(message.chat.id):
@@ -1048,7 +1045,12 @@ async def handle_trim_video(message: Message, media):
         await status_msg.edit(f"❌ Error: {str(e)}")
 
 
-@app.on_message(filters.text & filters.private)
+@app.on_message(filters.text & filters.private & ~filters.command([
+    "start","help","compress","settings","settings1","settings2",
+    "all","extract_audio","addaudio","remaudio","sub","hsub",
+    "rsub","trim","mediainfo","list","cancel","sysinfo",
+    "speedtest","ping","restart","update","log","stats","broadcast"
+]))
 async def handle_text(client: Client, message: Message):
     """Handle text messages for multi-step operations"""
     user_id = message.from_user.id
