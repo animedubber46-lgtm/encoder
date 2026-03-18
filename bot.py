@@ -241,21 +241,8 @@ async def process_video_task(task_id: str, progress_msg: Message):
 
 @app.on_message(filters.command("start") & filters.private)
 async def start_command(client: Client, message: Message):
-    try:
-        user = message.from_user
-        if not user:
-            return
-
-        print(f"/start from {user.id}")
-
-        # SAFE DB CALL
-        try:
-            await db.add_user(user.id, user.username or "", user.first_name or "")
-        except Exception as db_error:
-            logger.error(f"DB ERROR: {db_error}")
-
-        text = f"""
-👋 Hello {user.first_name or "User"}!
+    print("START HIT")
+    await message.reply_text("Bot is working")
 
 Welcome to {BOT_NAME} 🎬
 
